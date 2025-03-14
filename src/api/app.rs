@@ -31,6 +31,7 @@ impl App {
             .route("/api/v1/core/memory", post(super::core::post_memory))
             .route("/api/v1/core/registers", post(super::core::post_registers))
             .route("/api/v1/core/run", post(super::core::post_run))
+            .route("/api/v1/core/step", post(super::core::post_step))
             .layer(cors)
             .layer(Extension(cpu));
 

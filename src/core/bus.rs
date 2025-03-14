@@ -13,6 +13,11 @@ impl Bus {
             dram: Dram::new(code),
         }
     }
+
+    pub fn replace(&mut self, new_code: Vec<u8>) {
+        self.dram = Dram::new(new_code);
+    }
+
     pub fn load(&self, addr: u64, size: u64) -> Result<u64, Exception> {
         match addr {
             DRAM_BASE..=DRAM_END => self.dram.load(addr, size),

@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, fs::File, io::Read, sync::Arc};
 
 use axum::{Extension, Json};
 use tokio::sync::Mutex;
@@ -22,6 +22,27 @@ pub async fn post_registers(
     Json(cpu.read_registers())
 }
 
-pub async fn post_run(Json(payload): Json<Vec<i32>>) -> Json<Vec<i32>> {
-    Json(payload.iter().map(|x| x * 2).collect())
+pub async fn post_step(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<String>> {
+    let mut cpu = cpu.lock().await;
+
+    let inst = match cpu.fetch() {
+        Ok(inst) => inst,
+        _ => 0
+    };
+
+    match cpu.execute(inst as u32) {
+        Ok(new_pc) => cpu.pc = new_pc,
+        _ => cpu.pc = 0,
+    };
+
+    Json(vec![format!("Instruction executed: {:x}.", inst)])
+}
+
+pub async fn post_run(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<String>> {
+    let mut cpu = cpu.lock().await;
+    let mut file = File::open("temp/payload.bin").unwrap();
+    let mut code = Vec::new();
+    file.read_to_end(&mut code).unwrap();
+    cpu.bus.replace(code);
+    Json(vec!("Target started to run.".into()))
 }

@@ -64,7 +64,7 @@ pub fn compile(payload: Vec<File>) -> String {
         .expect("Failed to execute objdump command");
 
     // Clean up temporary files
-    let _ = fs::remove_dir_all(temp_dir);
+    // let _ = fs::remove_dir_all(temp_dir);
 
     String::from_utf8_lossy(&output.stdout).into_owned()
 }
