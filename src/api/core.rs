@@ -35,12 +35,12 @@ pub async fn post_step(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<S
 
     let inst = match cpu.fetch() {
         Ok(inst) => inst,
-        _ => 0,
+        _ => 0xffffffffffffffff,
     };
 
     match cpu.execute(inst as u32) {
         Ok(new_pc) => cpu.pc = new_pc,
-        _ => cpu.pc = 0,
+        _ => (),
     };
 
     Json(vec![format!("Instruction executed: 0x{:08x}.", inst)])
