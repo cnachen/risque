@@ -14,8 +14,6 @@ pub struct MemoryValue {
 
 impl MemoryValue {
     pub fn new(address: u64, word: u32) -> Self {
-        Self {
-            address, word
-        }
+        Self { address, word }
     }
 }

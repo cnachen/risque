@@ -3,7 +3,11 @@ use std::{collections::HashMap, fs::File, io::Read, sync::Arc};
 use axum::{Extension, Json};
 use tokio::sync::Mutex;
 
-use crate::{model::{MemoryRange, MemoryValue, RegisterValue}, Cpu};
+use crate::{
+    core::param::DRAM_BASE,
+    model::{MemoryRange, MemoryValue, RegisterValue},
+    Cpu,
+};
 
 pub async fn post_memory(
     Extension(cpu): Extension<Arc<Mutex<Cpu>>>,
@@ -25,9 +29,13 @@ pub async fn post_registers(
 pub async fn post_step(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<String>> {
     let mut cpu = cpu.lock().await;
 
+    if !cpu.running {
+        return Json(vec![format!("Target is not running.")]);
+    }
+
     let inst = match cpu.fetch() {
         Ok(inst) => inst,
-        _ => 0
+        _ => 0,
     };
 
     match cpu.execute(inst as u32) {
@@ -35,14 +43,34 @@ pub async fn post_step(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<S
         _ => cpu.pc = 0,
     };
 
-    Json(vec![format!("Instruction executed: {:x}.", inst)])
+    Json(vec![format!("Instruction executed: 0x{:08x}.", inst)])
 }
 
 pub async fn post_run(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<String>> {
     let mut cpu = cpu.lock().await;
+
+    if cpu.running {
+        return Json(vec!["Target is already running.".into()]);
+    }
+
     let mut file = File::open("temp/payload.bin").unwrap();
     let mut code = Vec::new();
     file.read_to_end(&mut code).unwrap();
+
     cpu.bus.replace(code);
-    Json(vec!("Target started to run.".into()))
+    cpu.pc = DRAM_BASE;
+    cpu.running = true;
+    Json(vec!["Target started to run.".into()])
+}
+
+pub async fn post_stop(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<String>> {
+    let mut cpu = cpu.lock().await;
+    cpu.running = false;
+    Json(vec!["Target stopped.".into()])
+}
+
+pub async fn post_restart(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<String>> {
+    let mut cpu = cpu.lock().await;
+    cpu.pc = DRAM_BASE;
+    Json(vec![format!("Target pc reseted to 0x{:016x}.", DRAM_BASE)])
 }

@@ -8,8 +8,6 @@ pub struct RegisterValue {
 
 impl RegisterValue {
     pub fn new(key: String, value: u64) -> Self {
-        Self {
-            key, value
-        }
+        Self { key, value }
     }
 }

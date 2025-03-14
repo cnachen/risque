@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use rand::prelude::*;
+use std::collections::HashMap;
 
 use crate::model::{MemoryValue, RegisterValue};
 
@@ -19,6 +19,7 @@ pub struct Cpu {
     pub regs: [u64; 32],
     pub pc: u64,
     pub bus: Bus,
+    pub running: bool,
 }
 
 impl Cpu {
@@ -27,7 +28,7 @@ impl Cpu {
 
         let mut regs = [0; 32];
         for i in 1..regs.len() {
-            regs[i] = rng.next_u64();  // Set random values for the rest of the elements
+            regs[i] = rng.next_u64(); // Set random values for the rest of the elements
         }
         regs[0] = 0;
         regs[2] = DRAM_END;
@@ -42,6 +43,7 @@ impl Cpu {
             regs,
             pc: DRAM_BASE,
             bus: bus,
+            running: false,
         }
     }
 
@@ -94,7 +96,7 @@ impl Cpu {
 
     pub fn read_registers(&self) -> Vec<RegisterValue> {
         let mut vec = Vec::new();
-        for (i, & name) in ABINAME.iter().enumerate() {
+        for (i, &name) in ABINAME.iter().enumerate() {
             vec.push(RegisterValue::new(name.into(), self.regs[i]));
         }
         vec
@@ -104,7 +106,10 @@ impl Cpu {
         let mut vec = Vec::new();
 
         for address in (begin..=end).step_by(4) {
-            vec.push(MemoryValue::new(address, self.bus.load(address, 32).unwrap() as u32));
+            vec.push(MemoryValue::new(
+                address,
+                self.bus.load(address, 32).unwrap() as u32,
+            ));
         }
 
         vec.reverse();
