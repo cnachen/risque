@@ -13,7 +13,7 @@ impl Bus {
             dram: Dram::new(code),
         }
     }
-    pub fn load(&mut self, addr: u64, size: u64) -> Result<u64, Exception> {
+    pub fn load(&self, addr: u64, size: u64) -> Result<u64, Exception> {
         match addr {
             DRAM_BASE..=DRAM_END => self.dram.load(addr, size),
             _ => Err(Exception::LoadAccessFault(addr)),

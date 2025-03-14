@@ -1,5 +1,8 @@
 mod file;
-mod memory_range;
+mod memory;
+mod register;
 
 pub use file::File;
-pub use memory_range::MemoryRange;
+pub use memory::MemoryRange;
+pub use memory::MemoryValue;
+pub use register::RegisterValue;

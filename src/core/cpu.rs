@@ -1,3 +1,8 @@
+use std::collections::HashMap;
+use rand::prelude::*;
+
+use crate::model::{MemoryValue, RegisterValue};
+
 use super::{
     bus::Bus,
     exception::Exception,
@@ -18,9 +23,21 @@ pub struct Cpu {
 
 impl Cpu {
     pub fn new(code: Vec<u8>) -> Self {
+        let mut rng = rand::rng();
+
         let mut regs = [0; 32];
+        for i in 1..regs.len() {
+            regs[i] = rng.next_u64();  // Set random values for the rest of the elements
+        }
+        regs[0] = 0;
         regs[2] = DRAM_END;
-        let bus = Bus::new(code);
+
+        let mut bus = Bus::new(code);
+
+        for i in (DRAM_BASE..=DRAM_BASE + 0x1c).step_by(8) {
+            bus.store(i, 64, rng.next_u64()).unwrap();
+        }
+
         Self {
             regs,
             pc: DRAM_BASE,
@@ -73,6 +90,25 @@ impl Cpu {
         }
 
         Ok(self.pc + 4)
+    }
+
+    pub fn read_registers(&self) -> Vec<RegisterValue> {
+        let mut vec = Vec::new();
+        for (i, & name) in ABINAME.iter().enumerate() {
+            vec.push(RegisterValue::new(name.into(), self.regs[i]));
+        }
+        vec
+    }
+
+    pub fn read_memory_range(&self, begin: u64, end: u64) -> Vec<MemoryValue> {
+        let mut vec = Vec::new();
+
+        for address in (begin..=end).step_by(4) {
+            vec.push(MemoryValue::new(address, self.bus.load(address, 32).unwrap() as u32));
+        }
+
+        vec.reverse();
+        vec
     }
 
     pub fn dump_registers(&mut self) {

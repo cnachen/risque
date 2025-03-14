@@ -1,5 +1,5 @@
 mod app;
-mod core;
 mod compiler;
+mod core;
 
 pub use app::App;

@@ -1,12 +1,11 @@
 use std::fs::{self, File as FsFile};
 use std::io::Write;
-use std::process::Command;
 use std::path::Path;
+use std::process::Command;
 
 use crate::model::File;
 
 pub fn compile(payload: Vec<File>) -> String {
-    println!("{:?}", payload);
     // Create temporary directory
     let temp_dir = "temp";
     let _ = fs::create_dir_all(temp_dir);
@@ -15,7 +14,8 @@ pub fn compile(payload: Vec<File>) -> String {
     for file in payload {
         let path = Path::new(temp_dir).join(&file.name);
         let mut f = FsFile::create(&path).expect("Failed to create file");
-        f.write_all(file.content.as_bytes()).expect("Failed to write file");
+        f.write_all(file.content.as_bytes())
+            .expect("Failed to write file");
     }
 
     // Compile
@@ -41,12 +41,7 @@ pub fn compile(payload: Vec<File>) -> String {
 
     // Convert to binary
     let status = Command::new("riscv64-unknown-elf-objcopy")
-        .args([
-            "-O",
-            "binary",
-            "temp/payload.elf",
-            "temp/payload.bin",
-        ])
+        .args(["-O", "binary", "temp/payload.elf", "temp/payload.bin"])
         .status()
         .expect("Failed to execute objcopy command");
 
