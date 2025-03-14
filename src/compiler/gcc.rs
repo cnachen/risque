@@ -6,6 +6,7 @@ use std::path::Path;
 use crate::model::File;
 
 pub fn compile(payload: Vec<File>) -> String {
+    println!("{:?}", payload);
     // Create temporary directory
     let temp_dir = "temp";
     let _ = fs::create_dir_all(temp_dir);
@@ -24,6 +25,7 @@ pub fn compile(payload: Vec<File>) -> String {
             "-mabi=lp64",
             "-O0",
             "-nostdlib",
+            "-fno-elide-constructors",
             "-T",
             "assets/link.ld",
             "-o",
