@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use super::{except::Exception, Cpu};
+use super::{except::Exception, cpu::Cpu};
 use crate::kit::insn::InsnType;
 
 type IsaProcessor = Arc<Box<dyn Fn(&mut Cpu, u32) -> Result<u64, Exception> + Send + Sync>>;
@@ -30,13 +30,13 @@ impl IsaDefine {
     }
 }
 
-pub fn install(map: &mut HashMap<u32, Vec<IsaDefine>>, insn: IsaDefine) {
-    let op = insn.ident & 0x7f;
+pub fn install(map: &mut HashMap<u32, Vec<IsaDefine>>, def: IsaDefine) {
+    let op = def.ident & 0x7f;
 
     if let Some(v) = map.get_mut(&op) {
-        v.push(insn);
+        v.push(def);
         return;
     } else {
-        map.insert(op, vec![insn]);
+        map.insert(op, vec![def]);
     }
 }

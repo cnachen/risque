@@ -9,8 +9,8 @@ use super::isa::{install, IsaDefine};
 
 fn lui() -> IsaDefine {
     IsaDefine::new(
-        Arc::new(Box::new(|cpu, inst| {
-            let u = vdepart!(inst, InsnType::U);
+        Arc::new(Box::new(|cpu, insn| {
+            let u = vdepart!(insn, InsnType::U);
             cpu.regs[u.rd as usize] = sext(u.imm as u64, 20) << 12;
             Ok(0)
         })),
@@ -22,8 +22,8 @@ fn lui() -> IsaDefine {
 
 fn auipc() -> IsaDefine {
     IsaDefine::new(
-        Arc::new(Box::new(|cpu, inst| {
-            let u = vdepart!(inst, InsnType::U);
+        Arc::new(Box::new(|cpu, insn| {
+            let u = vdepart!(insn, InsnType::U);
             cpu.regs[u.rd as usize] = cpu.pc.wrapping_add(sext(u.imm as u64, 20) << 12);
             Ok(0)
         })),
@@ -35,8 +35,8 @@ fn auipc() -> IsaDefine {
 
 fn jal() -> IsaDefine {
     IsaDefine::new(
-        Arc::new(Box::new(|cpu, inst| {
-            let j = vdepart!(inst, InsnType::J);
+        Arc::new(Box::new(|cpu, insn| {
+            let j = vdepart!(insn, InsnType::J);
             cpu.regs[j.rd as usize] = cpu.pc + 4;
             cpu.pc = cpu.pc.wrapping_add(sext(j.imm as u64, 21));
             cpu.pcimm = 0;
@@ -50,8 +50,8 @@ fn jal() -> IsaDefine {
 
 fn jalr() -> IsaDefine {
     IsaDefine::new(
-        Arc::new(Box::new(|cpu, inst| {
-            let i = vdepart!(inst, InsnType::I);
+        Arc::new(Box::new(|cpu, insn| {
+            let i = vdepart!(insn, InsnType::I);
             let t = cpu.pc + 4;
             cpu.pc = (cpu.regs[i.rs1 as usize].wrapping_add(sext(i.imm as u64, 12))) & mask(1);
             cpu.pcimm = 0;

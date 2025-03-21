@@ -24,6 +24,7 @@ pub struct Cpu {
     pub bus: Bus,
     pub running: bool,
     pub isa_define_map: HashMap<u32, Vec<IsaDefine>>,
+    pub breakpoints: Vec<u64>,
 }
 
 impl Cpu {
@@ -53,6 +54,7 @@ impl Cpu {
             bus: bus,
             running: false,
             isa_define_map: map,
+            breakpoints: Vec::new(),
         }
     }
 
