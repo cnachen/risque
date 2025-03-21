@@ -1,4 +1,4 @@
-use super::exception::Exception;
+use super::except::Exception;
 use super::param::DRAM_BASE;
 use super::param::DRAM_SIZE;
 

@@ -1,5 +1,5 @@
 use super::dram::Dram;
-use super::exception::Exception;
+use super::except::Exception;
 use super::param::DRAM_BASE;
 use super::param::DRAM_END;
 

@@ -26,14 +26,17 @@ impl App {
             .route("/", get(Self::handler))
             .route(
                 "/api/v1/compiler/compile",
-                post(super::compiler::post_compile),
+                post(super::external::post_compile),
             )
-            .route("/api/v1/core/memory", post(super::core::post_memory))
-            .route("/api/v1/core/registers", post(super::core::post_registers))
-            .route("/api/v1/core/run", post(super::core::post_run))
-            .route("/api/v1/core/step", post(super::core::post_step))
-            .route("/api/v1/core/restart", post(super::core::post_restart))
-            .route("/api/v1/core/stop", post(super::core::post_stop))
+            .route("/api/v1/core/memory", post(super::internal::post_memory))
+            .route(
+                "/api/v1/core/registers",
+                post(super::internal::post_registers),
+            )
+            .route("/api/v1/core/run", post(super::internal::post_run))
+            .route("/api/v1/core/step", post(super::internal::post_step))
+            .route("/api/v1/core/restart", post(super::internal::post_restart))
+            .route("/api/v1/core/stop", post(super::internal::post_stop))
             .layer(cors)
             .layer(Extension(cpu));
 
