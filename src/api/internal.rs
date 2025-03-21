@@ -5,7 +5,7 @@ use tokio::sync::Mutex;
 
 use crate::{
     core::param::DRAM_BASE,
-    model::{MemoryRangePayload, MemoryValueResponse, RegisterValueResponse},
+    model::{MemoryRangePayload, MemoryValueResponse, RegisterValueResponse, StepResponse},
     Cpu,
 };
 
@@ -26,24 +26,26 @@ pub async fn post_registers(
     Json(cpu.read_registers())
 }
 
-pub async fn post_step(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<String>> {
+pub async fn post_step(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<StepResponse> {
     let mut cpu = cpu.lock().await;
 
     if !cpu.running {
-        return Json(vec![format!("Target is not running.")]);
+        return Json(StepResponse::new(cpu.pc, 0xffffffff, "Target is not running.".into()));
     }
 
-    let inst = match cpu.fetch() {
+    let last_pc = cpu.pc;
+
+    let insn = match cpu.fetch() {
         Ok(inst) => inst,
         _ => 0xffffffff,
     };
 
-    match cpu.execute(inst as u32) {
+    match cpu.execute(insn as u32) {
         Ok(new_pc) => cpu.pc = new_pc,
         _ => (),
     };
 
-    Json(vec![format!("Instruction executed: 0x{:08x}.", inst)])
+    Json(StepResponse::new(last_pc, insn as u32, format!("Instruction executed: 0x{:08x}.", insn)))
 }
 
 pub async fn post_run(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<String>> {

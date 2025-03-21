@@ -1,5 +1,5 @@
 mod api;
-mod compiler;
+mod shell;
 mod core;
 pub mod kit;
 pub mod model;

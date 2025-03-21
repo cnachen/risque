@@ -1,11 +1,12 @@
 use std::fs::{self, File as FsFile};
-use std::io::Write;
+use std::io::{Write, Read};
 use std::path::Path;
 use std::process::Command;
 
 use crate::model::FileResponse;
+use crate::Cpu;
 
-pub fn compile(payload: Vec<FileResponse>) -> String {
+pub fn compile_v2(payload: Vec<FileResponse>) -> String {
     // Create temporary directory
     let temp_dir = "temp";
     let _ = fs::create_dir_all(temp_dir);
@@ -49,22 +50,23 @@ pub fn compile(payload: Vec<FileResponse>) -> String {
         return "Binary conversion failed".into();
     }
 
-    // Disassemble
-    let output = Command::new("riscv64-unknown-elf-objdump")
-        .args([
-            "-m",
-            "riscv",
-            "-b",
-            "binary",
-            "-Mno-aliases",
-            "-D",
-            "temp/payload.bin",
-        ])
-        .output()
-        .expect("Failed to execute objdump command");
+    "OK".into()
+}
 
-    // Clean up temporary files
-    // let _ = fs::remove_dir_all(temp_dir);
+pub fn decompile() -> String {
+    let mut file = FsFile::open("temp/payload.bin").unwrap();
+    let mut code = Vec::new();
+    file.read_to_end(&mut code).unwrap();
+    let mut cpu = Cpu::new(code.clone());
 
-    String::from_utf8_lossy(&output.stdout).into_owned()
+    let mut ret = String::new();
+
+    for _ in 0..code.len() / 4 {
+        let inst = cpu.fetch().unwrap();
+        ret.push_str(&cpu.explain(inst as u32));
+        cpu.pc += 4;
+        ret.push('\n');
+    }
+
+    ret
 }

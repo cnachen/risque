@@ -38,11 +38,11 @@ impl Cpu {
         regs[0] = 0;
         regs[2] = DRAM_END;
 
-        let mut bus = Bus::new(code);
+        let bus = Bus::new(code);
 
-        for i in (DRAM_BASE..=DRAM_BASE + 0x1c).step_by(8) {
-            bus.store(i, 64, rng.next_u64()).unwrap();
-        }
+        // for i in (DRAM_BASE..=DRAM_BASE + 0x1c).step_by(8) {
+        //     bus.store(i, 64, rng.next_u64()).unwrap();
+        // }
 
         let mut map = HashMap::new();
         super::i::register_ext(&mut map);
