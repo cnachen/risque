@@ -191,7 +191,15 @@ impl Cpu {
         // x0 is hardwired zero
         self.regs[0] = 0;
 
-        Ok(self.pc + self.pcimm)
+        Ok(self.pc.wrapping_add(self.pcimm))
+    }
+
+    pub fn wgpr(&mut self, id: u32) -> &mut u64 {
+        &mut self.regs[id as usize]
+    }
+
+    pub fn rgpr(&self, id: u32) -> u64 {
+        self.regs[id as usize]
     }
 
     pub fn read_registers(&self) -> Vec<RegisterValueResponse> {
