@@ -64,14 +64,10 @@ fn jalr() -> IsaDefine {
     )
 }
 
-pub fn register_default_isa_define_map() -> HashMap<u32, Vec<IsaDefine>> {
-    let mut map = HashMap::new();
-
+pub fn register_ext(map: &mut HashMap<u32, Vec<IsaDefine>>) {
     // TBD: add more instructions
-    install(&mut map, lui());
-    install(&mut map, auipc());
-    install(&mut map, jal());
-    install(&mut map, jalr());
-
-    map
+    install(map, lui());
+    install(map, auipc());
+    install(map, jal());
+    install(map, jalr());
 }

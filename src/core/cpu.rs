@@ -10,7 +10,6 @@ use crate::{
 use super::{
     bus::Bus,
     except::Exception,
-    i::register_default_isa_define_map,
     isa::IsaDefine,
     param::{ABINAME, DRAM_BASE, DRAM_END},
 };
@@ -44,13 +43,16 @@ impl Cpu {
             bus.store(i, 64, rng.next_u64()).unwrap();
         }
 
+        let mut map = HashMap::new();
+        super::i::register_ext(&mut map);
+
         Self {
             regs,
             pc: DRAM_BASE,
             pcimm: 4,
             bus: bus,
             running: false,
-            isa_define_map: register_default_isa_define_map(),
+            isa_define_map: map,
         }
     }
 
@@ -80,14 +82,14 @@ impl Cpu {
                             InsnType::U => {
                                 let u = vdepart!(insn, InsnType::U);
                                 return format!(
-                                    "{:016x}: {} {}, 0x{:05x}",
+                                    "{:016x}: {}\t{}, 0x{:05x}",
                                     self.pc, isa.mnemonic, ABINAME[u.rd as usize], u.imm
                                 );
                             }
                             InsnType::I => {
                                 let i = vdepart!(insn, InsnType::I);
                                 return format!(
-                                    "{:016x}: {} {}, {}, 0x{:03x}",
+                                    "{:016x}: {}\t{}, {}, 0x{:03x}",
                                     self.pc,
                                     isa.mnemonic,
                                     ABINAME[i.rd as usize],
@@ -98,7 +100,7 @@ impl Cpu {
                             InsnType::S => {
                                 let s = vdepart!(insn, InsnType::S);
                                 return format!(
-                                    "{:016x}: {} {}, {}, 0x{:x}",
+                                    "{:016x}: {}\t{}, {}, 0x{:x}",
                                     self.pc,
                                     isa.mnemonic,
                                     ABINAME[s.rs1 as usize],
@@ -109,7 +111,7 @@ impl Cpu {
                             InsnType::B => {
                                 let b = vdepart!(insn, InsnType::B);
                                 return format!(
-                                    "{:016x}: {} {}, {}, 0x{:x}",
+                                    "{:016x}: {}\t{}, {}, 0x{:x}",
                                     self.pc,
                                     isa.mnemonic,
                                     ABINAME[b.rs1 as usize],
@@ -120,7 +122,7 @@ impl Cpu {
                             InsnType::R => {
                                 let r = vdepart!(insn, InsnType::R);
                                 return format!(
-                                    "{:016x}: {} {}, {}, x{}",
+                                    "{:016x}: {}\t{}, {}, 0x{}",
                                     self.pc,
                                     isa.mnemonic,
                                     ABINAME[r.rd as usize],
@@ -131,7 +133,7 @@ impl Cpu {
                             InsnType::J => {
                                 let j = vdepart!(insn, InsnType::J);
                                 return format!(
-                                    "{:016x}: {} {}, 0x{:x}",
+                                    "{:016x}: {}\t{}, 0x{:x}",
                                     self.pc, isa.mnemonic, ABINAME[j.rd as usize], j.imm
                                 );
                             }
