@@ -35,7 +35,7 @@ pub async fn post_step(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<S
 
     let inst = match cpu.fetch() {
         Ok(inst) => inst,
-        _ => 0xffffffffffffffff,
+        _ => 0xffffffff,
     };
 
     match cpu.execute(inst as u32) {

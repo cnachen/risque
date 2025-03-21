@@ -1,13 +1,6 @@
 .global _entry
 .section .text
 _entry:
-	lui t0, 0xfdecb
-	lui t1, 0x78888
-	lui t2, 0x88888
-	lui t0, 0xfdecb
-	lui t1, 0x78888
-	lui t2, 0x88888
-
-.section .rodata
-msg:
-	.ascii "Hello, World!\n"
+	lui t0, 0x12345
+	lui t0, 0
+	jalr t1, 0(t0)

@@ -146,6 +146,7 @@ impl Cpu {
     pub fn execute(&mut self, insn: u32) -> Result<u64, Exception> {
         // x0 is hardwired zero
         self.regs[0] = 0;
+        self.pcimm = 4;
 
         println!("{}", self.explain(insn));
 
@@ -176,6 +177,7 @@ impl Cpu {
 
     pub fn read_registers(&self) -> Vec<RegisterValueResponse> {
         let mut vec = Vec::new();
+        vec.push(RegisterValueResponse::new("pc".into(), self.pc));
         for (i, &name) in ABINAME.iter().enumerate() {
             vec.push(RegisterValueResponse::new(name.into(), self.regs[i]));
         }
