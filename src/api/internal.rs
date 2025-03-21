@@ -29,12 +29,6 @@ pub async fn post_registers(
 pub async fn post_step(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<StepResponse> {
     let mut cpu = cpu.lock().await;
 
-    if !cpu.running {
-        return Json(StepResponse::new(cpu.pc, 0xffffffff, "Target is not running.".into()));
-    }
-
-    let last_pc = cpu.pc;
-
     let insn = match cpu.fetch() {
         Ok(inst) => inst,
         _ => 0xffffffff,
@@ -45,7 +39,13 @@ pub async fn post_step(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<StepR
         _ => (),
     };
 
-    Json(StepResponse::new(last_pc, insn as u32, format!("Instruction executed: 0x{:08x}.", insn)))
+    cpu.running = false;
+
+    Json(StepResponse::new(
+        cpu.pc,
+        insn as u32,
+        format!("Instruction executed: 0x{:08x}.", insn),
+    ))
 }
 
 pub async fn post_run(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<String>> {
@@ -66,13 +66,14 @@ pub async fn post_run(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<St
 }
 
 pub async fn post_stop(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<String>> {
-    let mut cpu = cpu.lock().await;
-    cpu.running = false;
+    let mut _cpu = cpu.lock().await;
+    // cpu.running = false;
     Json(vec!["Target stopped.".into()])
 }
 
 pub async fn post_restart(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<String>> {
     let mut cpu = cpu.lock().await;
     cpu.pc = DRAM_BASE;
+    cpu.running = false;
     Json(vec![format!("Target pc reseted to 0x{:016x}.", DRAM_BASE)])
 }

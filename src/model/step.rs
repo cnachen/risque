@@ -11,4 +11,4 @@ impl StepResponse {
     pub fn new(pc: u64, insn: u32, message: String) -> Self {
         Self { pc, insn, message }
     }
-    }
+}

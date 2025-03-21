@@ -79,7 +79,14 @@ impl Cpu {
         match isa_defines {
             Some(isa_defines) => {
                 for isa in isa_defines {
-                    if insn & isa.ident == isa.ident {
+                    if isa.mtype == InsnType::R && (insn & 0xfe00707f) == isa.ident
+                        || (isa.mtype == InsnType::I
+                            || isa.mtype == InsnType::S
+                            || isa.mtype == InsnType::B)
+                            && (insn & 0x707f) == isa.ident
+                        || (isa.mtype == InsnType::U || isa.mtype == InsnType::J)
+                            && (insn & 0x7f) == isa.ident
+                    {
                         match isa.mtype {
                             InsnType::U => {
                                 let u = vdepart!(insn, InsnType::U);
@@ -160,7 +167,14 @@ impl Cpu {
         match isa_defines {
             Some(isa_defines) => {
                 for isa in isa_defines {
-                    if insn & isa.ident == isa.ident {
+                    if isa.mtype == InsnType::R && (insn & 0xfe00707f) == isa.ident
+                        || (isa.mtype == InsnType::I
+                            || isa.mtype == InsnType::S
+                            || isa.mtype == InsnType::B)
+                            && (insn & 0x707f) == isa.ident
+                        || (isa.mtype == InsnType::U || isa.mtype == InsnType::J)
+                            && (insn & 0x7f) == isa.ident
+                    {
                         // Now call the processor with a mutable borrow of `self`
                         if let Err(e) = (isa.processor)(self, insn) {
                             return Err(e);
@@ -182,9 +196,9 @@ impl Cpu {
 
     pub fn read_registers(&self) -> Vec<RegisterValueResponse> {
         let mut vec = Vec::new();
-        vec.push(RegisterValueResponse::new("pc".into(), self.pc));
+        vec.push(RegisterValueResponse::new("pc".into(), format!("0x{:016x}", self.pc)));
         for (i, &name) in ABINAME.iter().enumerate() {
-            vec.push(RegisterValueResponse::new(name.into(), self.regs[i]));
+            vec.push(RegisterValueResponse::new(name.into(), format!("0x{:016x}", self.regs[i])));
         }
         vec
     }
