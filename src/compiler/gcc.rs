@@ -3,9 +3,9 @@ use std::io::Write;
 use std::path::Path;
 use std::process::Command;
 
-use crate::model::File;
+use crate::model::FileResponse;
 
-pub fn compile(payload: Vec<File>) -> String {
+pub fn compile(payload: Vec<FileResponse>) -> String {
     // Create temporary directory
     let temp_dir = "temp";
     let _ = fs::create_dir_all(temp_dir);

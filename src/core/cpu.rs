@@ -1,10 +1,13 @@
+use std::collections::HashMap;
+
 use rand::prelude::*;
 
-use crate::model::{MemoryValue, RegisterValue};
+use crate::model::{MemoryValueResponse, RegisterValueResponse};
 
 use super::{
     bus::Bus,
     except::Exception,
+    isa::{register_default_isa_define_map, IsaDefine},
     param::{ABINAME, DRAM_BASE, DRAM_END},
 };
 
@@ -13,6 +16,7 @@ pub struct Cpu {
     pub pc: u64,
     pub bus: Bus,
     pub running: bool,
+    pub isa_define_map: HashMap<u32, Vec<IsaDefine>>,
 }
 
 impl Cpu {
@@ -37,6 +41,7 @@ impl Cpu {
             pc: DRAM_BASE,
             bus: bus,
             running: false,
+            isa_define_map: register_default_isa_define_map(),
         }
     }
 
@@ -306,19 +311,19 @@ impl Cpu {
         Ok(self.pc + 4)
     }
 
-    pub fn read_registers(&self) -> Vec<RegisterValue> {
+    pub fn read_registers(&self) -> Vec<RegisterValueResponse> {
         let mut vec = Vec::new();
         for (i, &name) in ABINAME.iter().enumerate() {
-            vec.push(RegisterValue::new(name.into(), self.regs[i]));
+            vec.push(RegisterValueResponse::new(name.into(), self.regs[i]));
         }
         vec
     }
 
-    pub fn read_memory_range(&self, begin: u64, end: u64) -> Vec<MemoryValue> {
+    pub fn read_memory_range(&self, begin: u64, end: u64) -> Vec<MemoryValueResponse> {
         let mut vec = Vec::new();
 
         for address in (begin..=end).step_by(4) {
-            vec.push(MemoryValue::new(
+            vec.push(MemoryValueResponse::new(
                 address,
                 self.bus.load(address, 32).unwrap() as u32,
             ));

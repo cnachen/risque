@@ -1,18 +1,18 @@
-use std::{collections::HashMap, fs::File, io::Read, sync::Arc};
+use std::{fs::File, io::Read, sync::Arc};
 
 use axum::{Extension, Json};
 use tokio::sync::Mutex;
 
 use crate::{
     core::param::DRAM_BASE,
-    model::{MemoryRange, MemoryValue, RegisterValue},
+    model::{MemoryRangePayload, MemoryValueResponse, RegisterValueResponse},
     Cpu,
 };
 
 pub async fn post_memory(
     Extension(cpu): Extension<Arc<Mutex<Cpu>>>,
-    Json(payload): Json<MemoryRange>,
-) -> Json<Vec<MemoryValue>> {
+    Json(payload): Json<MemoryRangePayload>,
+) -> Json<Vec<MemoryValueResponse>> {
     let cpu = cpu.lock().await;
 
     Json(cpu.read_memory_range(payload.begin, payload.end))
@@ -20,7 +20,7 @@ pub async fn post_memory(
 
 pub async fn post_registers(
     Extension(cpu): Extension<Arc<Mutex<Cpu>>>,
-) -> Json<Vec<RegisterValue>> {
+) -> Json<Vec<RegisterValueResponse>> {
     let cpu = cpu.lock().await;
 
     Json(cpu.read_registers())
