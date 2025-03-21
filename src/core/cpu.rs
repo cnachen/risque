@@ -2,7 +2,10 @@ use std::collections::HashMap;
 
 use rand::prelude::*;
 
-use crate::model::{MemoryValueResponse, RegisterValueResponse};
+use crate::{
+    kit::insn::InsnType,
+    model::{MemoryValueResponse, RegisterValueResponse},
+};
 
 use super::{
     bus::Bus,
@@ -10,6 +13,9 @@ use super::{
     isa::{register_default_isa_define_map, IsaDefine},
     param::{ABINAME, DRAM_BASE, DRAM_END},
 };
+
+use crate::kit::insn::*;
+use crate::vdepart;
 
 pub struct Cpu {
     pub regs: [u64; 32],
@@ -69,21 +75,79 @@ impl Cpu {
             Some(isa_defines) => {
                 for isa in isa_defines {
                     if insn & isa.ident == isa.ident {
-                        return format!("{} {}", isa.mnemonic, insn);
+                        match isa.mtype {
+                            InsnType::U => {
+                                let u = vdepart!(insn, InsnType::U);
+                                return format!(
+                                    "{:016x}: {} {}, 0x{:05x}",
+                                    self.pc, isa.mnemonic, ABINAME[u.rd as usize], u.imm
+                                );
+                            }
+                            InsnType::I => {
+                                let i = vdepart!(insn, InsnType::I);
+                                return format!(
+                                    "{:016x}: {} {}, {}, 0x{:03x}",
+                                    self.pc,
+                                    isa.mnemonic,
+                                    ABINAME[i.rd as usize],
+                                    ABINAME[i.rs1 as usize],
+                                    i.imm
+                                );
+                            }
+                            InsnType::S => {
+                                let s = vdepart!(insn, InsnType::S);
+                                return format!(
+                                    "{:016x}: {} {}, {}, 0x{:x}",
+                                    self.pc,
+                                    isa.mnemonic,
+                                    ABINAME[s.rs1 as usize],
+                                    ABINAME[s.rs2 as usize],
+                                    s.imm
+                                );
+                            }
+                            InsnType::B => {
+                                let b = vdepart!(insn, InsnType::B);
+                                return format!(
+                                    "{:016x}: {} {}, {}, 0x{:x}",
+                                    self.pc,
+                                    isa.mnemonic,
+                                    ABINAME[b.rs1 as usize],
+                                    ABINAME[b.rs2 as usize],
+                                    b.imm
+                                );
+                            }
+                            InsnType::R => {
+                                let r = vdepart!(insn, InsnType::R);
+                                return format!(
+                                    "{:016x}: {} {}, {}, x{}",
+                                    self.pc,
+                                    isa.mnemonic,
+                                    ABINAME[r.rd as usize],
+                                    ABINAME[r.rs1 as usize],
+                                    ABINAME[r.rs2 as usize]
+                                );
+                            }
+                            InsnType::J => {
+                                let j = vdepart!(insn, InsnType::J);
+                                return format!(
+                                    "{:016x}: {} {}, 0x{:x}",
+                                    self.pc, isa.mnemonic, ABINAME[j.rd as usize], j.imm
+                                );
+                            }
+                        }
                     }
                 }
             }
-            None => {
-                return format!("Invalid opcode: {:#x}", insn);
-            }
+            None => {}
         }
-
-        format!("Invalid opcode: {:#x}", insn)
+        format!("{:016x}: ? 0x{:08x}", self.pc, insn)
     }
 
     pub fn execute(&mut self, insn: u32) -> Result<u64, Exception> {
         // x0 is hardwired zero
         self.regs[0] = 0;
+
+        println!("{}", self.explain(insn));
 
         let isa_defines = self.isa_define_map.get(&(insn & 0x7f)).cloned();
 

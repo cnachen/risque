@@ -3,8 +3,8 @@ use std::sync::Arc;
 
 use super::{except::Exception, Cpu};
 use crate::kit::bits::*;
-use crate::kit::insn::UType;
 use crate::kit::insn::InsnType;
+use crate::kit::insn::UType;
 use crate::vdepart;
 
 type IsaProcessor = Arc<Box<dyn Fn(&mut Cpu, u32) -> Result<u64, Exception> + Send + Sync>>;
@@ -18,8 +18,18 @@ pub struct IsaDefine {
 }
 
 impl IsaDefine {
-    pub fn new(ident: u32, mtype: InsnType, mnemonic: &'static str, processor: IsaProcessor) -> Self {
-        Self { ident, mtype, mnemonic, processor }
+    pub fn new(
+        ident: u32,
+        mtype: InsnType,
+        mnemonic: &'static str,
+        processor: IsaProcessor,
+    ) -> Self {
+        Self {
+            ident,
+            mtype,
+            mnemonic,
+            processor,
+        }
     }
 }
 

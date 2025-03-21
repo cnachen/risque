@@ -73,7 +73,7 @@ macro_rules! vdepart {
     }};
     ($inst:expr, InsnType::I) => {{
         IType {
-            opcode:  $inst        & 0x7f;,
+            opcode:  $inst        & 0x7f,
             rd:     ($inst >> 7)  & 0x1f,
             funct3: ($inst >> 12) & 0x7,
             rs1:    ($inst >> 15) & 0x1f,
