@@ -10,7 +10,8 @@ use crate::{
 use super::{
     bus::Bus,
     except::Exception,
-    isa::{register_default_isa_define_map, IsaDefine},
+    i::register_default_isa_define_map,
+    isa::IsaDefine,
     param::{ABINAME, DRAM_BASE, DRAM_END},
 };
 
