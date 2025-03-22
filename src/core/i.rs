@@ -251,6 +251,58 @@ fn lwu() -> IsaDefine {
     )
 }
 
+fn sb() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let s = vdepart!(insn, InsnType::S);
+            cpu.store(cpu.rgpr(s.rs1).wrapping_add(sext(s.imm as u64, 12)), 8, cpu.rgpr(s.rs2)).unwrap();
+            Ok(0)
+        })),
+        "sb",
+        0x23,
+        InsnType::S,
+    )
+}
+
+fn sh() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let s = vdepart!(insn, InsnType::S);
+            cpu.store(cpu.rgpr(s.rs1).wrapping_add(sext(s.imm as u64, 12)), 16, cpu.rgpr(s.rs2)).unwrap();
+            Ok(0)
+        })),
+        "sh",
+        0x1023,
+        InsnType::S,
+    )
+}
+
+fn sw() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let s = vdepart!(insn, InsnType::S);
+            cpu.store(cpu.rgpr(s.rs1).wrapping_add(sext(s.imm as u64, 12)), 32, cpu.rgpr(s.rs2)).unwrap();
+            Ok(0)
+        })),
+        "sw",
+        0x2023,
+        InsnType::S,
+    )
+}
+
+fn sd() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let s = vdepart!(insn, InsnType::S);
+            cpu.store(cpu.rgpr(s.rs1).wrapping_add(sext(s.imm as u64, 12)), 64, cpu.rgpr(s.rs2)).unwrap();
+            Ok(0)
+        })),
+        "sd",
+        0x3023,
+        InsnType::S,
+    )
+}
+
 fn addi() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
@@ -400,12 +452,10 @@ pub fn register_ext(map: &mut HashMap<u32, Vec<IsaDefine>>) {
     install(map, lbu());
     install(map, lhu());
     install(map, lwu());
-    /*
     install(map, sb());
     install(map, sh());
     install(map, sw());
     install(map, sd());
-    */
     install(map, addi());
     install(map, slti());
     install(map, sltiu());
