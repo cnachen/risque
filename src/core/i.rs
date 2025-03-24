@@ -164,7 +164,11 @@ fn lb() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let i = vdepart!(insn, InsnType::I);
-            *cpu.wgpr(i.rd) = sext(cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 8).unwrap(), 8);
+            *cpu.wgpr(i.rd) = sext(
+                cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 8)
+                    .unwrap(),
+                8,
+            );
             Ok(0)
         })),
         "lb",
@@ -177,7 +181,11 @@ fn lh() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let i = vdepart!(insn, InsnType::I);
-            *cpu.wgpr(i.rd) = sext(cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 16).unwrap(), 16);
+            *cpu.wgpr(i.rd) = sext(
+                cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 16)
+                    .unwrap(),
+                16,
+            );
             Ok(0)
         })),
         "lh",
@@ -190,7 +198,11 @@ fn lw() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let i = vdepart!(insn, InsnType::I);
-            *cpu.wgpr(i.rd) = sext(cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 32).unwrap(), 32);
+            *cpu.wgpr(i.rd) = sext(
+                cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 32)
+                    .unwrap(),
+                32,
+            );
             Ok(0)
         })),
         "lw",
@@ -203,7 +215,9 @@ fn ld() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let i = vdepart!(insn, InsnType::I);
-            *cpu.wgpr(i.rd) = cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 64).unwrap();
+            *cpu.wgpr(i.rd) = cpu
+                .load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 64)
+                .unwrap();
             Ok(0)
         })),
         "ld",
@@ -216,7 +230,11 @@ fn lbu() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let i = vdepart!(insn, InsnType::I);
-            *cpu.wgpr(i.rd) = zext(cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 8).unwrap(), 8);
+            *cpu.wgpr(i.rd) = zext(
+                cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 8)
+                    .unwrap(),
+                8,
+            );
             Ok(0)
         })),
         "lbu",
@@ -229,7 +247,11 @@ fn lhu() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let i = vdepart!(insn, InsnType::I);
-            *cpu.wgpr(i.rd) = zext(cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 16).unwrap(), 16);
+            *cpu.wgpr(i.rd) = zext(
+                cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 16)
+                    .unwrap(),
+                16,
+            );
             Ok(0)
         })),
         "lhu",
@@ -242,7 +264,11 @@ fn lwu() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let i = vdepart!(insn, InsnType::I);
-            *cpu.wgpr(i.rd) = zext(cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 32).unwrap(), 32);
+            *cpu.wgpr(i.rd) = zext(
+                cpu.load(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)), 32)
+                    .unwrap(),
+                32,
+            );
             Ok(0)
         })),
         "lwu",
@@ -255,7 +281,12 @@ fn sb() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let s = vdepart!(insn, InsnType::S);
-            cpu.store(cpu.rgpr(s.rs1).wrapping_add(sext(s.imm as u64, 12)), 8, cpu.rgpr(s.rs2)).unwrap();
+            cpu.store(
+                cpu.rgpr(s.rs1).wrapping_add(sext(s.imm as u64, 12)),
+                8,
+                cpu.rgpr(s.rs2),
+            )
+            .unwrap();
             Ok(0)
         })),
         "sb",
@@ -268,7 +299,12 @@ fn sh() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let s = vdepart!(insn, InsnType::S);
-            cpu.store(cpu.rgpr(s.rs1).wrapping_add(sext(s.imm as u64, 12)), 16, cpu.rgpr(s.rs2)).unwrap();
+            cpu.store(
+                cpu.rgpr(s.rs1).wrapping_add(sext(s.imm as u64, 12)),
+                16,
+                cpu.rgpr(s.rs2),
+            )
+            .unwrap();
             Ok(0)
         })),
         "sh",
@@ -281,7 +317,12 @@ fn sw() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let s = vdepart!(insn, InsnType::S);
-            cpu.store(cpu.rgpr(s.rs1).wrapping_add(sext(s.imm as u64, 12)), 32, cpu.rgpr(s.rs2)).unwrap();
+            cpu.store(
+                cpu.rgpr(s.rs1).wrapping_add(sext(s.imm as u64, 12)),
+                32,
+                cpu.rgpr(s.rs2),
+            )
+            .unwrap();
             Ok(0)
         })),
         "sw",
@@ -294,7 +335,12 @@ fn sd() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let s = vdepart!(insn, InsnType::S);
-            cpu.store(cpu.rgpr(s.rs1).wrapping_add(sext(s.imm as u64, 12)), 64, cpu.rgpr(s.rs2)).unwrap();
+            cpu.store(
+                cpu.rgpr(s.rs1).wrapping_add(sext(s.imm as u64, 12)),
+                64,
+                cpu.rgpr(s.rs2),
+            )
+            .unwrap();
             Ok(0)
         })),
         "sd",
@@ -381,58 +427,6 @@ fn andi() -> IsaDefine {
     )
 }
 
-fn add() -> IsaDefine {
-    IsaDefine::new(
-        Arc::new(Box::new(|cpu, insn| {
-            let r = vdepart!(insn, InsnType::R);
-            *cpu.wgpr(r.rd) = cpu.rgpr(r.rs1).wrapping_add(cpu.rgpr(r.rs2));
-            Ok(0)
-        })),
-        "add",
-        0x33,
-        InsnType::R,
-    )
-}
-
-fn sub() -> IsaDefine {
-    IsaDefine::new(
-        Arc::new(Box::new(|cpu, insn| {
-            let r = vdepart!(insn, InsnType::R);
-            *cpu.wgpr(r.rd) = cpu.rgpr(r.rs1).wrapping_sub(cpu.rgpr(r.rs2));
-            Ok(0)
-        })),
-        "sub",
-        0x40000033,
-        InsnType::R,
-    )
-}
-
-fn or() -> IsaDefine {
-    IsaDefine::new(
-        Arc::new(Box::new(|cpu, insn| {
-            let r = vdepart!(insn, InsnType::R);
-            *cpu.wgpr(r.rd) = cpu.rgpr(r.rs1) | cpu.rgpr(r.rs2);
-            Ok(0)
-        })),
-        "or",
-        0x6033,
-        InsnType::R,
-    )
-}
-
-fn and() -> IsaDefine {
-    IsaDefine::new(
-        Arc::new(Box::new(|cpu, insn| {
-            let r = vdepart!(insn, InsnType::R);
-            *cpu.wgpr(r.rd) = cpu.rgpr(r.rs1) & cpu.rgpr(r.rs2);
-            Ok(0)
-        })),
-        "and",
-        0x7033,
-        InsnType::R,
-    )
-}
-
 fn slli() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
@@ -463,7 +457,7 @@ fn srai() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let i = vdepart!(insn, InsnType::I);
-            *cpu.wgpr(i.rd) = cpu.rgpr(i.rs1) >> (i.imm & 0x3f);
+            *cpu.wgpr(i.rd) = (cpu.rgpr(i.rs1) as i64 >> (i.imm & 0x3f)) as u64;
             Ok(0)
         })),
         "srai",
@@ -472,11 +466,144 @@ fn srai() -> IsaDefine {
     )
 }
 
+fn add() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let r = vdepart!(insn, InsnType::R);
+            *cpu.wgpr(r.rd) = cpu.rgpr(r.rs1).wrapping_add(cpu.rgpr(r.rs2));
+            Ok(0)
+        })),
+        "add",
+        0x33,
+        InsnType::R,
+    )
+}
+
+fn sub() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let r = vdepart!(insn, InsnType::R);
+            *cpu.wgpr(r.rd) = cpu.rgpr(r.rs1).wrapping_sub(cpu.rgpr(r.rs2));
+            Ok(0)
+        })),
+        "sub",
+        0x40000033,
+        InsnType::R,
+    )
+}
+
+fn sll() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let r = vdepart!(insn, InsnType::R);
+            *cpu.wgpr(r.rd) = cpu.rgpr(r.rs1) << (cpu.rgpr(r.rs2) & 0x3f);
+            Ok(0)
+        })),
+        "sll",
+        0x1033,
+        InsnType::R,
+    )
+}
+
+fn slt() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let r = vdepart!(insn, InsnType::R);
+            *cpu.wgpr(r.rd) = ((cpu.rgpr(r.rs1) as i64) < (cpu.rgpr(r.rs2) as i64)) as u64;
+            Ok(0)
+        })),
+        "slt",
+        0x2033,
+        InsnType::R,
+    )
+}
+
+fn sltu() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let r = vdepart!(insn, InsnType::R);
+            *cpu.wgpr(r.rd) = (cpu.rgpr(r.rs1) < cpu.rgpr(r.rs2)) as u64;
+            Ok(0)
+        })),
+        "sltu",
+        0x3033,
+        InsnType::R,
+    )
+}
+
+fn xor() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let r = vdepart!(insn, InsnType::R);
+            *cpu.wgpr(r.rd) = cpu.rgpr(r.rs1) ^ cpu.rgpr(r.rs2);
+            Ok(0)
+        })),
+        "xor",
+        0x4033,
+        InsnType::R,
+    )
+}
+
+fn srl() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let r = vdepart!(insn, InsnType::R);
+            *cpu.wgpr(r.rd) = cpu.rgpr(r.rs1) >> (cpu.rgpr(r.rs2) & 0x3f);
+            Ok(0)
+        })),
+        "srl",
+        0x5033,
+        InsnType::R,
+    )
+}
+
+fn sra() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let r = vdepart!(insn, InsnType::R);
+            *cpu.wgpr(r.rd) = (cpu.rgpr(r.rs1) as i64 >> (cpu.rgpr(r.rs2) & 0x3f)) as u64;
+            Ok(0)
+        })),
+        "sra",
+        0x40005033,
+        InsnType::R,
+    )
+}
+
+fn or() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let r = vdepart!(insn, InsnType::R);
+            *cpu.wgpr(r.rd) = cpu.rgpr(r.rs1) | cpu.rgpr(r.rs2);
+            Ok(0)
+        })),
+        "or",
+        0x6033,
+        InsnType::R,
+    )
+}
+
+fn and() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let r = vdepart!(insn, InsnType::R);
+            *cpu.wgpr(r.rd) = cpu.rgpr(r.rs1) & cpu.rgpr(r.rs2);
+            Ok(0)
+        })),
+        "and",
+        0x7033,
+        InsnType::R,
+    )
+}
+
 fn addiw() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let i = vdepart!(insn, InsnType::I);
-            *cpu.wgpr(i.rd) = sext(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)) as u32 as u64, 32);
+            *cpu.wgpr(i.rd) = sext(
+                cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)) as u32 as u64,
+                32,
+            );
             Ok(0)
         })),
         "addiw",
@@ -489,7 +616,10 @@ fn addw() -> IsaDefine {
     IsaDefine::new(
         Arc::new(Box::new(|cpu, insn| {
             let r = vdepart!(insn, InsnType::R);
-            *cpu.wgpr(r.rd) = sext(cpu.rgpr(r.rs1).wrapping_add(cpu.rgpr(r.rs2)) as u32 as u64, 32);
+            *cpu.wgpr(r.rd) = sext(
+                cpu.rgpr(r.rs1).wrapping_add(cpu.rgpr(r.rs2)) as u32 as u64,
+                32,
+            );
             Ok(0)
         })),
         "addw",
@@ -527,26 +657,19 @@ pub fn register_ext(map: &mut HashMap<u32, Vec<IsaDefine>>) {
     install(map, xori());
     install(map, ori());
     install(map, andi());
-    /*
     install(map, slli());
     install(map, srli());
     install(map, srai());
-    */
     install(map, add());
     install(map, sub());
-    /*
     install(map, sll());
     install(map, slt());
     install(map, sltu());
     install(map, xor());
     install(map, srl());
     install(map, sra());
-    */
     install(map, or());
     install(map, and());
-    install(map, slli());
-    install(map, srli());
-    install(map, srai());
     install(map, addiw());
     install(map, addw());
 }

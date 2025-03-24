@@ -80,9 +80,11 @@ impl Cpu {
             Some(isa_defines) => {
                 for isa in isa_defines {
                     if isa.mtype == InsnType::R && (insn & 0xfe00707f) == isa.ident
-                        || isa.mtype == InsnType::I && [0x1013u32, 0x5013].contains(&(insn & 0x707f))
+                        || isa.mtype == InsnType::I
+                            && [0x1013u32, 0x5013].contains(&(insn & 0x707f))
                             && (insn & 0xfc00707f) == isa.ident
-                        || (isa.mtype == InsnType::I && ![0x1013u32, 0x5013].contains(&(insn & 0x707f))
+                        || (isa.mtype == InsnType::I
+                            && ![0x1013u32, 0x5013].contains(&(insn & 0x707f))
                             || isa.mtype == InsnType::S
                             || isa.mtype == InsnType::B)
                             && (insn & 0x707f) == isa.ident
@@ -170,9 +172,11 @@ impl Cpu {
             Some(isa_defines) => {
                 for isa in isa_defines {
                     if isa.mtype == InsnType::R && (insn & 0xfe00707f) == isa.ident
-                        || isa.mtype == InsnType::I && [0x1013u32, 0x5013].contains(&(insn & 0x707f))
+                        || isa.mtype == InsnType::I
+                            && [0x1013u32, 0x5013].contains(&(insn & 0x707f))
                             && (insn & 0xfc00707f) == isa.ident
-                        || (isa.mtype == InsnType::I && ![0x1013u32, 0x5013].contains(&(insn & 0x707f))
+                        || (isa.mtype == InsnType::I
+                            && ![0x1013u32, 0x5013].contains(&(insn & 0x707f))
                             || isa.mtype == InsnType::S
                             || isa.mtype == InsnType::B)
                             && (insn & 0x707f) == isa.ident
@@ -208,9 +212,15 @@ impl Cpu {
 
     pub fn read_registers(&self) -> Vec<RegisterValueResponse> {
         let mut vec = Vec::new();
-        vec.push(RegisterValueResponse::new("pc".into(), format!("0x{:016x}", self.pc)));
+        vec.push(RegisterValueResponse::new(
+            "pc".into(),
+            format!("0x{:016x}", self.pc),
+        ));
         for (i, &name) in ABINAME.iter().enumerate() {
-            vec.push(RegisterValueResponse::new(name.into(), format!("0x{:016x}", self.regs[i])));
+            vec.push(RegisterValueResponse::new(
+                name.into(),
+                format!("0x{:016x}", self.regs[i]),
+            ));
         }
         vec
     }
