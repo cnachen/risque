@@ -672,4 +672,16 @@ pub fn register_ext(map: &mut HashMap<u32, Vec<IsaDefine>>) {
     install(map, and());
     install(map, addiw());
     install(map, addw());
+    /*
+    install(map, fence());
+    install(map, ecall());
+    install(map, ebreak());
+    install(map, slliw());
+    install(map, srliw());
+    install(map, sraiw());
+    install(map, subw());
+    install(map, sllw());
+    install(map, srlw());
+    install(map, sraw());
+     */
 }

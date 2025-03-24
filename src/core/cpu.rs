@@ -47,6 +47,7 @@ impl Cpu {
 
         let mut map = HashMap::new();
         super::i::register_ext(&mut map);
+        super::m::register_ext(&mut map);
 
         Self {
             regs,
