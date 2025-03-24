@@ -433,6 +433,71 @@ fn and() -> IsaDefine {
     )
 }
 
+fn slli() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let i = vdepart!(insn, InsnType::I);
+            *cpu.wgpr(i.rd) = cpu.rgpr(i.rs1) << (i.imm & 0x3f);
+            Ok(0)
+        })),
+        "slli",
+        0x1013,
+        InsnType::I,
+    )
+}
+
+fn srli() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let i = vdepart!(insn, InsnType::I);
+            *cpu.wgpr(i.rd) = cpu.rgpr(i.rs1) >> (i.imm & 0x3f);
+            Ok(0)
+        })),
+        "srli",
+        0x5013,
+        InsnType::I,
+    )
+}
+
+fn srai() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let i = vdepart!(insn, InsnType::I);
+            *cpu.wgpr(i.rd) = cpu.rgpr(i.rs1) >> (i.imm & 0x3f);
+            Ok(0)
+        })),
+        "srai",
+        0x40005013,
+        InsnType::I,
+    )
+}
+
+fn addiw() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let i = vdepart!(insn, InsnType::I);
+            *cpu.wgpr(i.rd) = sext(cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12)) as u32 as u64, 32);
+            Ok(0)
+        })),
+        "addiw",
+        0x1b,
+        InsnType::I,
+    )
+}
+
+fn addw() -> IsaDefine {
+    IsaDefine::new(
+        Arc::new(Box::new(|cpu, insn| {
+            let r = vdepart!(insn, InsnType::R);
+            *cpu.wgpr(r.rd) = sext(cpu.rgpr(r.rs1).wrapping_add(cpu.rgpr(r.rs2)) as u32 as u64, 32);
+            Ok(0)
+        })),
+        "addw",
+        0x3b,
+        InsnType::R,
+    )
+}
+
 pub fn register_ext(map: &mut HashMap<u32, Vec<IsaDefine>>) {
     // TBD: add more instructions
     install(map, lui());
@@ -479,4 +544,9 @@ pub fn register_ext(map: &mut HashMap<u32, Vec<IsaDefine>>) {
     */
     install(map, or());
     install(map, and());
+    install(map, slli());
+    install(map, srli());
+    install(map, srai());
+    install(map, addiw());
+    install(map, addw());
 }
