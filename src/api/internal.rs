@@ -55,7 +55,7 @@ pub async fn post_run(Extension(cpu): Extension<Arc<Mutex<Cpu>>>) -> Json<Vec<St
         return Json(vec!["Target is already running.".into()]);
     }
 
-    let mut file = File::open("temp/payload.bin").unwrap();
+    let mut file = File::open("/tmp/risque-temp/payload.bin").unwrap();
     let mut code = Vec::new();
     file.read_to_end(&mut code).unwrap();
 

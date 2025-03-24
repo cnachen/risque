@@ -6,9 +6,9 @@ use std::process::Command;
 use crate::model::FileResponse;
 use crate::Cpu;
 
-pub fn compile_v2(payload: Vec<FileResponse>) -> String {
+pub fn compile(payload: Vec<FileResponse>) -> String {
     // Create temporary directory
-    let temp_dir = "temp";
+    let temp_dir = "/tmp/risque-temp";
     let _ = fs::create_dir_all(temp_dir);
 
     // Write all source files
@@ -30,7 +30,7 @@ pub fn compile_v2(payload: Vec<FileResponse>) -> String {
             "-T",
             "assets/link.ld",
             "-o",
-            "temp/payload.elf",
+            &format!("{}/payload.elf", temp_dir),
         ])
         .arg(format!("{}/entry.S", temp_dir))
         .status()
@@ -42,7 +42,12 @@ pub fn compile_v2(payload: Vec<FileResponse>) -> String {
 
     // Convert to binary
     let status = Command::new("riscv64-unknown-elf-objcopy")
-        .args(["-O", "binary", "temp/payload.elf", "temp/payload.bin"])
+        .args([
+            "-O",
+            "binary",
+            &format!("{}/payload.elf", temp_dir),
+            &format!("{}/payload.bin", temp_dir),
+        ])
         .status()
         .expect("Failed to execute objcopy command");
 
@@ -54,7 +59,7 @@ pub fn compile_v2(payload: Vec<FileResponse>) -> String {
 }
 
 pub fn decompile() -> String {
-    let mut file = FsFile::open("temp/payload.bin").unwrap();
+    let mut file = FsFile::open("/tmp/risque-temp/payload.bin").unwrap();
     let mut code = Vec::new();
     file.read_to_end(&mut code).unwrap();
     let mut cpu = Cpu::new(code.clone());

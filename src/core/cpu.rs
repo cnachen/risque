@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use rand::prelude::*;
 
 use crate::{
+    kit::bits::*,
     kit::insn::InsnType,
     model::{MemoryValueResponse, RegisterValueResponse},
 };
@@ -95,14 +96,25 @@ impl Cpu {
                             InsnType::U => {
                                 let u = vdepart!(insn, InsnType::U);
                                 return format!(
-                                    "{:016x}: {}\t{}, 0x{:05x}",
+                                    "{:012x}: {}\t{}, 0x{:05x}",
                                     self.pc, isa.mnemonic, ABINAME[u.rd as usize], u.imm
                                 );
                             }
                             InsnType::I => {
                                 let i = vdepart!(insn, InsnType::I);
+                                // jalr | load
+                                if (insn & 0x7f) == 0x03 || (insn & 0x7f) == 0x67 {
+                                    return format!(
+                                        "{:012x}: {}\t{}, 0x{:x}({})",
+                                        self.pc,
+                                        isa.mnemonic,
+                                        ABINAME[i.rd as usize],
+                                        i.imm,
+                                        ABINAME[i.rs1 as usize],
+                                    );
+                                }
                                 return format!(
-                                    "{:016x}: {}\t{}, {}, 0x{:03x}",
+                                    "{:012x}: {}\t{}, {}, 0x{:03x}",
                                     self.pc,
                                     isa.mnemonic,
                                     ABINAME[i.rd as usize],
@@ -113,29 +125,30 @@ impl Cpu {
                             InsnType::S => {
                                 let s = vdepart!(insn, InsnType::S);
                                 return format!(
-                                    "{:016x}: {}\t{}, {}, 0x{:x}",
+                                    "{:012x}: {}\t{}, 0x{:x}({})",
                                     self.pc,
                                     isa.mnemonic,
                                     ABINAME[s.rs1 as usize],
+                                    s.imm,
                                     ABINAME[s.rs2 as usize],
-                                    s.imm
                                 );
                             }
                             InsnType::B => {
                                 let b = vdepart!(insn, InsnType::B);
                                 return format!(
-                                    "{:016x}: {}\t{}, {}, 0x{:x}",
+                                    "{:012x}: {}\t{}, {}, 0x{:x} -> 0x{:x}",
                                     self.pc,
                                     isa.mnemonic,
                                     ABINAME[b.rs1 as usize],
                                     ABINAME[b.rs2 as usize],
-                                    b.imm
+                                    b.imm,
+                                    self.pc.wrapping_add(sext(b.imm as u64, 13))
                                 );
                             }
                             InsnType::R => {
                                 let r = vdepart!(insn, InsnType::R);
                                 return format!(
-                                    "{:016x}: {}\t{}, {}, 0x{}",
+                                    "{:012x}: {}\t{}, {}, {}",
                                     self.pc,
                                     isa.mnemonic,
                                     ABINAME[r.rd as usize],
@@ -146,8 +159,12 @@ impl Cpu {
                             InsnType::J => {
                                 let j = vdepart!(insn, InsnType::J);
                                 return format!(
-                                    "{:016x}: {}\t{}, 0x{:x}",
-                                    self.pc, isa.mnemonic, ABINAME[j.rd as usize], j.imm
+                                    "{:012x}: {}\t{}, 0x{:x} -> 0x{:x}",
+                                    self.pc,
+                                    isa.mnemonic,
+                                    ABINAME[j.rd as usize],
+                                    j.imm,
+                                    self.pc.wrapping_add(sext(j.imm as u64, 21))
                                 );
                             }
                         }
@@ -156,7 +173,7 @@ impl Cpu {
             }
             None => {}
         }
-        format!("{:016x}: ? 0x{:08x}", self.pc, insn)
+        format!("{:012x}: ?\t\t0x{:08x}", self.pc, insn)
     }
 
     pub fn execute(&mut self, insn: u32) -> Result<u64, Exception> {
