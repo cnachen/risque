@@ -1,7 +1,8 @@
 use std::fs::{self, File as FsFile};
 use std::io::{Read, Write};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
+use glob::glob;
 
 use crate::model::FileResponse;
 use crate::Cpu;
@@ -19,6 +20,10 @@ pub fn compile(payload: Vec<FileResponse>) -> String {
             .expect("Failed to write file");
     }
 
+    let cfiles: Vec<PathBuf> = glob(format!("{}/*.c", temp_dir).as_str()).unwrap().flatten().collect();
+    let sfiles: Vec<PathBuf> = glob(format!("{}/*.s", temp_dir).as_str()).unwrap().flatten().collect();
+    let upper_sfiles: Vec<PathBuf> = glob(format!("{}/*.S", temp_dir).as_str()).unwrap().flatten().collect();
+
     // Compile
     let status = Command::new("riscv64-unknown-elf-gcc")
         .args([
@@ -32,7 +37,9 @@ pub fn compile(payload: Vec<FileResponse>) -> String {
             "-o",
             &format!("{}/payload.elf", temp_dir),
         ])
-        .arg(format!("{}/entry.S", temp_dir))
+        .args(sfiles)
+        .args(upper_sfiles)
+        .args(cfiles)
         .status()
         .expect("Failed to execute gcc command");
 

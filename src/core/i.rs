@@ -53,7 +53,7 @@ fn jalr() -> IsaDefine {
         Arc::new(Box::new(|cpu, insn| {
             let i = vdepart!(insn, InsnType::I);
             let t = cpu.pc.wrapping_add(4);
-            cpu.pc = (cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12))) & mask(1);
+            cpu.pc = (cpu.rgpr(i.rs1).wrapping_add(sext(i.imm as u64, 12))) & !mask(1);
             cpu.pcimm = 0;
             *cpu.wgpr(i.rd) = t;
             Ok(0)
