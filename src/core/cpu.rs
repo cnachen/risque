@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use rand::prelude::*;
 
 use crate::{
-    kit::bits::*,
+    kit::bits::sext,
     kit::insn::InsnType,
     model::{MemoryValueResponse, RegisterValueResponse},
 };
