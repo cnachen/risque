@@ -40,7 +40,7 @@ impl JitMemory {
     }
 
     fn write_u32(&mut self, index: usize, value: u32) {
-        assert!((index + 1) * 4 <= self.size);
+        assert!((index + 1) * 4 <= self.size, "mmap write");
         unsafe {
             let ptr = self.code_buffer.add(index * 4) as *mut u32;
             *ptr = value;
@@ -49,7 +49,7 @@ impl JitMemory {
 
     #[allow(dead_code)]
     fn read_u32(&self, index: usize) -> u32 {
-        assert!((index + 1) * 4 <= self.size);
+        assert!((index + 1) * 4 <= self.size, "mmap read");
         unsafe {
             let ptr = self.code_buffer.add(index * 4) as *const u32;
             *ptr
@@ -57,6 +57,7 @@ impl JitMemory {
     }
 }
 
+#[allow(dead_code)]
 fn run_jit() -> unsafe extern "C" fn() {
     let mut jit = JitMemory::new(PAGE_SIZE);
 
@@ -70,7 +71,7 @@ fn run_jit() -> unsafe extern "C" fn() {
         0xd2800030, // mov x16, #0x1
         0xd4001001, // svc #0x0
         0x35343131, // "1145"
-        0x000a3431, // "41\n"
+        0x000a3431, // "14\n"
     ];
 
     jit.write_protect(false);
@@ -80,9 +81,4 @@ fn run_jit() -> unsafe extern "C" fn() {
     jit.write_protect(true);
 
     unsafe { mem::transmute(jit.code_buffer) }
-}
-
-pub fn jit_main() {
-    let fun: unsafe extern "C" fn() = run_jit();
-    unsafe { fun() };
 }
