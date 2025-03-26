@@ -8,7 +8,7 @@ struct JitMemory {
 }
 
 impl JitMemory {
-    fn new(numpages: usize) -> Self {
+    fn new(num_pages: usize) -> Self {
         use libc::{MAP_ANON, MAP_JIT, MAP_PRIVATE, PROT_EXEC, PROT_READ, PROT_WRITE};
         let prot = PROT_READ | PROT_WRITE | PROT_EXEC;
         let flags = MAP_PRIVATE | MAP_ANON | MAP_JIT;
@@ -16,18 +16,20 @@ impl JitMemory {
         unsafe {
             let mem = libc::mmap(
                 std::ptr::null_mut(),
-                numpages * PAGE_SIZE,
+                num_pages * PAGE_SIZE,
                 prot,
                 flags,
                 -1,
                 0,
             );
+
             if mem == libc::MAP_FAILED {
                 panic!("mmap failed");
             }
+
             Self {
                 code_buffer: mem as *mut u8,
-                size: numpages * PAGE_SIZE,
+                size: num_pages * PAGE_SIZE,
             }
         }
     }
