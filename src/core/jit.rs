@@ -1,4 +1,4 @@
-use std::mem;
+use std::{ffi::c_void, mem};
 
 const PAGE_SIZE: usize = 4096;
 
@@ -41,6 +41,13 @@ impl JitMemory {
         }
     }
 
+    fn sys_icache_invalidate(&self) {
+        #[cfg(target_os = "macos")]
+        unsafe {
+            crate::platform::macos::sys_icache_invalidate(self.code_buffer as *mut c_void, self.size);
+        }
+    }
+
     fn write_u32(&mut self, index: usize, value: u32) {
         assert!((index + 1) * 4 <= self.size, "mmap write");
         unsafe {
@@ -60,6 +67,7 @@ impl JitMemory {
 }
 
 #[allow(dead_code)]
+#[cfg(target_os = "macos")]
 fn run_jit() -> unsafe extern "C" fn() {
     let mut jit = JitMemory::new(PAGE_SIZE);
 
@@ -81,6 +89,7 @@ fn run_jit() -> unsafe extern "C" fn() {
         jit.write_u32(i, inst);
     }
     jit.write_protect(true);
+    jit.sys_icache_invalidate();
 
     unsafe { mem::transmute(jit.code_buffer) }
 }
